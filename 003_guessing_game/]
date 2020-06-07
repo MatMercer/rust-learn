@@ -4,7 +4,7 @@ use rand::Rng;
 
 fn main() {
     println!("Guess the number!");
-
+    
     let right_guess = rand::thread_rng() // get a random generator that is unique to the current thread
         .gen_range(1, 101); // It’s inclusive on the lower bound but exclusive on the upper bound
 
@@ -17,8 +17,7 @@ fn main() {
             .read_line(&mut guess) // guess needs to be passed as mutable to have it's contents changed. without &, the guess would be copied instead of passed as reference. like variables, references are immutable by default. that's why it's a mut there.
             .expect("Failed to read the number"); // every function in rust returns a value, like in lisp. this returs io::Result, which has the method expect. Expect is a enum both of Err or Ok. if Err, program stops with message in expect. if Ok, program continues and expect returns the same Ok. in this case, it's the number of byte read. without expect, there will be compile warnings
 
-        let g = Guess::new( // shadow the value of guess to a new one
-            match guess 
+        let guess: u32 = match guess // shadow the value of guess to a new one
             .trim()
             .parse() /* parses to a type, in this case, u32 */ {
                 Ok(num) => num,
@@ -26,8 +25,8 @@ fn main() {
                     println!("Invalid number!");
                     continue;
                 },
-            });
-        match g.value().cmp(&right_guess) {                     // match expression
+        };
+        match guess.cmp(&right_guess) {                     // match expression
             Ordering::Less => println!("Too small!"),      // made of arms
             Ordering::Greater /* pattern of the arm */ => println!("Too big!"), /* code that will execute of the arm */
             Ordering::Equal => {
@@ -36,25 +35,5 @@ fn main() {
             }
         }
     }
+
 }
-
-pub struct Guess {
-    value: u32,
-}
-
-impl Guess {
-    pub fn new(value: u32) -> Guess {
-        if value < 1 || value > 100 {
-            panic!("Guess value is between 1 and 100, got {}.", value)
-        }
-
-        Guess {
-            value
-        }
-    }
-
-    pub fn value(&self) -> u32 {
-        self.value
-    }
-}
-
